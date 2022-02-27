@@ -3,5 +3,18 @@
 }
 
 .navbar {
+  height: 4em;
   justify-content: space-around;
+  background: rgb(31, 24, 24);
+}
+
+.navlink {
+  font-size: 1.2em;
+
+  color: rgb(246, 255, 0);
+  text-decoration: none;
+}
+
+.navlink:hover {
+  color: rgb(255, 162, 0);
 }

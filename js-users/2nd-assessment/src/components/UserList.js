@@ -8,10 +8,40 @@ const UserList = () => {
   const [users, setUsers] = useState([]);
   const [alert, setAlert] = useState(null);
 
+  // console.log(users[0].status);
+
+  const linkFormatter = (cellContent, row) => {
+    return (
+      <button
+        type="button"
+        className="btn btn-sm btn-primary"
+        onClick={() => handleToggle(row.id)}
+      >
+        Toggle
+      </button>
+    );
+  };
+
+  const rowStyle = (row) =>
+    row.status === "locked"
+      ? { "text-decoration": "line-through" }
+      : { "text-decoration": "none" };
+
+  const handleToggle = (rowId) => {
+    console.log(rowId);
+  };
+
   const columns = [
+    { dataField: "id", text: "ID" },
+    { dataField: "status", text: "Status" },
     { dataField: "first_name", text: "First Name", sort: true },
     { dataField: "last_name", text: "Last Name", sort: true },
     { dataField: "created_at", text: "Created At", sort: true },
+    {
+      dataField: "toggle",
+      text: "Activate/Lock",
+      formatter: linkFormatter,
+    },
   ];
 
   const defaultSorted = [
@@ -56,7 +86,7 @@ const UserList = () => {
       })
       .then((jsonRes) => {
         setUsers(jsonRes);
-        console.log(users);
+        // console.log(users);
       })
       .catch((err) => {
         console.log("err", err);
@@ -74,6 +104,8 @@ const UserList = () => {
         columns={columns}
         defaultSorted={defaultSorted}
         pagination={pagination}
+        rowStyle={rowStyle}
+        // rowStyle={{ "text-decoration": "line-through" }}
       />
     </main>
   );
