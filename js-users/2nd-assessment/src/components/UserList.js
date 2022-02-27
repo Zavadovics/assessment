@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import BootstrapTable from "react-bootstrap-table-next";
 import paginationFactory from "react-bootstrap-table2-paginator";
 import "react-bootstrap-table-next/dist/react-bootstrap-table2.css";
@@ -8,28 +9,26 @@ const UserList = () => {
   const [users, setUsers] = useState([]);
   const [alert, setAlert] = useState(null);
 
-  // console.log(users[0].status);
-
   const linkFormatter = (cellContent, row) => {
     return (
-      <button
-        type="button"
-        className="btn btn-sm btn-primary"
-        onClick={() => handleToggle(row.id)}
-      >
-        Toggle
-      </button>
+      <Link to={`/edit/${row.id}`}>
+        <button type="button" className="btn btn-sm btn-primary">
+          Edit User
+        </button>
+      </Link>
     );
   };
 
-  const rowStyle = (row) =>
-    row.status === "locked"
-      ? { "text-decoration": "line-through" }
-      : { "text-decoration": "none" };
+  // const handleToggle = (rowId) => {
+  //   <Link to={`/edit/${rowId}`}></Link>;
+  //   console.log(rowId);
+  // };
 
-  const handleToggle = (rowId) => {
-    console.log(rowId);
-  };
+  // const handleClick = () => {
+  //   <Link className="navlink" to="/new">
+  //     New User
+  //   </Link>;
+  // };
 
   const columns = [
     { dataField: "id", text: "ID" },
@@ -39,7 +38,7 @@ const UserList = () => {
     { dataField: "created_at", text: "Created At", sort: true },
     {
       dataField: "toggle",
-      text: "Activate/Lock",
+      text: "Edit",
       formatter: linkFormatter,
     },
   ];
@@ -51,6 +50,11 @@ const UserList = () => {
     },
   ];
 
+  const rowStyle = (row) =>
+    row.status === "locked"
+      ? { textDecoration: "line-through" }
+      : { textDecoration: "none" };
+
   const pagination = paginationFactory({
     page: 2,
     sizePerPage: 5,
@@ -60,14 +64,8 @@ const UserList = () => {
     prePageText: "<",
     showTotal: true,
     alwaysShowAllBtns: true,
-    onPageChange: function (page, sizePerPage) {
-      console.log("page", page);
-      console.log("sizePerPage", sizePerPage);
-    },
-    onSizePerPageChange: function (page, sizePerPage) {
-      console.log("page", page);
-      console.log("sizePerPage", sizePerPage);
-    },
+    onPageChange: function () {},
+    onSizePerPageChange: function () {},
   });
 
   const messageTypes = {
@@ -86,7 +84,6 @@ const UserList = () => {
       })
       .then((jsonRes) => {
         setUsers(jsonRes);
-        // console.log(users);
       })
       .catch((err) => {
         console.log("err", err);
@@ -105,7 +102,6 @@ const UserList = () => {
         defaultSorted={defaultSorted}
         pagination={pagination}
         rowStyle={rowStyle}
-        // rowStyle={{ "text-decoration": "line-through" }}
       />
     </main>
   );

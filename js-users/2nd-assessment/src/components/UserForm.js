@@ -2,13 +2,18 @@ import { useState, useRef } from "react";
 import InputField from "../components/InputField";
 
 const UserForm = ({ type, user }) => {
-  const id = type === "edit" ? user.id : null;
+  //   const id = type === "edit" ? user.id : null;
 
-  console.log("id", id);
+  //   console.log("type", type);
+  //   console.log("user", user);
+  //   console.log("id", id);
 
   const [formData, setFormData] = useState(
     type === "edit"
-      ? user
+      ? {
+          firstName: user.first_name,
+          lastName: user.last_name,
+        }
       : {
           firstName: "",
           lastName: "",
@@ -108,26 +113,88 @@ const UserForm = ({ type, user }) => {
     return isFormValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    e.persist();
 
     setAlert(null);
-    setFormErrors(() => ({
+    setFormErrors({
       firstName: "",
       lastName: "",
-    }));
+    });
     setFormWasValidated(false);
-
     const isValid = isFormValid();
 
     if (isValid) {
-      console.log("VALID");
-      // const data = {
-      //   firstName: formData.firstName,
-      //   lastName: new Date(formData.lastName),
-      //   highestBid: 0,
-      // };
-      // addNew(data);
+      if (type === "new") {
+        await fetch(`https://assessment-users-backend.herokuapp.com/users`, {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            status: "active",
+          }),
+        })
+          .then(async (res) => {
+            if (res.status !== 201) {
+              const response = await res.json();
+              throw new Error(response?.message);
+            }
+            return res.json();
+          })
+          .then(() => {
+            setAlert({
+              alertType: "success",
+              message: "New user has been saved",
+            });
+            setFormData({
+              firstName: "",
+              lastName: "",
+            });
+            e.target.reset();
+          })
+          .catch((err) => {
+            console.log(err.message);
+            setAlert({ alertType: "danger", message: err.message });
+          });
+      }
+      if (type === "edit") {
+        await fetch(
+          `https://assessment-users-backend.herokuapp.com/users/${user.id}`,
+          {
+            method: "put",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              first_name: formData.firstName,
+              last_name: formData.lastName,
+            }),
+          }
+        )
+          .then(async (res) => {
+            if (res.status < 200 || res.status >= 300) {
+              const response = await res.json();
+              throw new Error(response?.message);
+            }
+            return res.json();
+          })
+          .then((res) => {
+            console.log("user details updated");
+            setAlert({
+              alertType: "success",
+              message: res.message,
+            });
+          })
+          .catch((err) => {
+            console.log(err.message);
+            setAlert({ alertType: "danger", message: err.message });
+          });
+      }
+      setFormWasValidated(false);
     } else {
       setFormWasValidated(true);
     }

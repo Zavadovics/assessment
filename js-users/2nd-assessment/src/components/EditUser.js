@@ -6,11 +6,21 @@ const EditUser = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
 
+  console.log("user", user);
+
   useEffect(() => {
-    //     AttractionRepository.getOneById(id).then((atr) => {
-    //       setUser(atr);
-    //     });
-    setUser("whatever");
+    fetch(`https://assessment-users-backend.herokuapp.com/users/${id}`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((jsonRes) => {
+        setUser(jsonRes);
+      });
   }, [id]);
 
   return (
