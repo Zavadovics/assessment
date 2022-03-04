@@ -6,8 +6,6 @@ const EditUser = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
 
-  console.log("user", user);
-
   useEffect(() => {
     fetch(`https://assessment-users-backend.herokuapp.com/users/${id}`, {
       method: "GET",
@@ -26,7 +24,7 @@ const EditUser = () => {
   return (
     <main className="container">
       <h3>Edit user</h3>
-      {user && <UserForm type={"edit"} user={user} />}
+      {user && <UserForm type="edit" user={user} />}
     </main>
   );
 };

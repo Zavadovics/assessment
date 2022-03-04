@@ -139,6 +139,7 @@ const UserForm = ({ type, user }) => {
           }),
         })
           .then(async (res) => {
+            console.log("res", res);
             if (res.status !== 201) {
               const response = await res.json();
               throw new Error(response?.message);
@@ -157,7 +158,6 @@ const UserForm = ({ type, user }) => {
             e.target.reset();
           })
           .catch((err) => {
-            console.log(err.message);
             setAlert({ alertType: "danger", message: err.message });
           });
       }
@@ -176,17 +176,18 @@ const UserForm = ({ type, user }) => {
           }
         )
           .then(async (res) => {
-            if (res.status < 200 || res.status >= 300) {
+            console.log("res", res);
+            if (res.status !== 204) {
               const response = await res.json();
               throw new Error(response?.message);
             }
             return res.json();
           })
           .then((res) => {
-            console.log("user details updated");
+            console.log("user details updated", res);
             setAlert({
               alertType: "success",
-              message: res.message,
+              message: "User details have been updated",
             });
           })
           .catch((err) => {

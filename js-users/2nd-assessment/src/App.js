@@ -15,9 +15,9 @@ function App() {
           <Link className="navlink" to="/new">
             New User
           </Link>
-          <Link className="navlink" to="/edit/:id">
+          {/* <Link className="navlink" to="/edit/:id">
             Edit User
-          </Link>
+          </Link> */}
         </nav>
         <h1 className="my-5">User List Application</h1>
         <Routes>

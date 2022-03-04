@@ -9,7 +9,7 @@ const UserList = () => {
   const [users, setUsers] = useState([]);
   const [alert, setAlert] = useState(null);
 
-  const linkFormatter = (cellContent, row) => {
+  const editUser = (cellContent, row) => {
     return (
       <Link to={`/edit/${row.id}`}>
         <button type="button" className="btn btn-sm btn-primary">
@@ -19,19 +19,72 @@ const UserList = () => {
     );
   };
 
-  // const handleToggle = (rowId) => {
-  //   <Link to={`/edit/${rowId}`}></Link>;
-  //   console.log(rowId);
-  // };
+  const changeActivationStatus = async (e) => {
+    e.preventDefault();
+    const id = e.target.id;
+    const user = users.find((user) => user.id === parseInt(id));
+    let newStatus = "";
+    user.status === "locked" ? (newStatus = "active") : (newStatus = "locked");
 
-  // const handleClick = () => {
-  //   <Link className="navlink" to="/new">
-  //     New User
-  //   </Link>;
-  // };
+    await fetch(`https://assessment-users-backend.herokuapp.com/users/${id}`, {
+      method: "put",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        status: newStatus,
+      }),
+    })
+      .then(async (res) => {
+        console.log("res", res);
+        if (res.status !== 204) {
+          const response = await res.json();
+          throw new Error(response?.message);
+        }
+        return res.json();
+      })
+      .then((res) => {
+        console.log("user details updated", res);
+        const updatedUsers = users.map((user) => user.id !== id);
+        updatedUsers.push(user);
+        setUsers(updatedUsers);
+      })
+      .catch((err) => {
+        console.log(err.message);
+        setAlert({ alertType: "danger", message: err.message });
+      });
+  };
+
+  const toggleActivation = (cellContent, row) => {
+    console.log(row.status);
+    // const status = row.status;
+    if (row.status === "active") {
+      return (
+        <button
+          type="button"
+          onClick={changeActivationStatus}
+          id={row.id}
+          className="btn btn-sm btn-primary"
+        >
+          Lock
+        </button>
+      );
+    } else {
+      return (
+        <button
+          type="button"
+          onClick={changeActivationStatus}
+          id={row.id}
+          className="btn btn-sm btn-primary"
+        >
+          Activate
+        </button>
+      );
+    }
+  };
 
   const columns = [
-    { dataField: "id", text: "ID" },
+    { dataField: "id", text: "ID", sort: true },
     { dataField: "status", text: "Status" },
     { dataField: "first_name", text: "First Name", sort: true },
     { dataField: "last_name", text: "Last Name", sort: true },
@@ -39,13 +92,18 @@ const UserList = () => {
     {
       dataField: "toggle",
       text: "Edit",
-      formatter: linkFormatter,
+      formatter: editUser,
+    },
+    {
+      dataField: "activate",
+      text: "Activate/Lock",
+      formatter: toggleActivation,
     },
   ];
 
   const defaultSorted = [
     {
-      dataField: "last_name",
+      dataField: "id",
       order: "asc",
     },
   ];
@@ -90,7 +148,7 @@ const UserList = () => {
         console.log("alert", alert);
         setAlert({ alertType: "danger", message: messageTypes.dbProblem });
       });
-  }, []);
+  }, [users]);
 
   return (
     <main className="container">
