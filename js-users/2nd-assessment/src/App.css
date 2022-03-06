@@ -18,3 +18,7 @@
 .navlink:hover {
   color: rgb(255, 162, 0);
 }
+
+.btn {
+  width: 78px !important;
+}

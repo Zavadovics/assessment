@@ -2,12 +2,6 @@ import { useState, useRef } from "react";
 import InputField from "../components/InputField";
 
 const UserForm = ({ type, user }) => {
-  //   const id = type === "edit" ? user.id : null;
-
-  //   console.log("type", type);
-  //   console.log("user", user);
-  //   console.log("id", id);
-
   const [formData, setFormData] = useState(
     type === "edit"
       ? {
@@ -20,11 +14,6 @@ const UserForm = ({ type, user }) => {
         }
   );
 
-  //   const messageTypes = Object.freeze({
-  //     success: "Sikeres mentés!",
-  //     fail: "Sikertelen mentés",
-  //   });
-
   const [formWasValidated, setFormWasValidated] = useState(false);
 
   const references = {
@@ -32,9 +21,9 @@ const UserForm = ({ type, user }) => {
     lastName: useRef(),
   };
 
-  const formErrorTypes = Object.freeze({
+  const formErrorTypes = {
     required: "This field can not be empty",
-  });
+  };
 
   const [formErrors, setFormErrors] = useState({
     firstName: "",
@@ -113,7 +102,7 @@ const UserForm = ({ type, user }) => {
     return isFormValid;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     e.persist();
 
@@ -127,7 +116,7 @@ const UserForm = ({ type, user }) => {
 
     if (isValid) {
       if (type === "new") {
-        await fetch(`https://assessment-users-backend.herokuapp.com/users`, {
+        fetch(`https://assessment-users-backend.herokuapp.com/users`, {
           method: "post",
           headers: {
             "Content-Type": "application/json",
@@ -138,10 +127,9 @@ const UserForm = ({ type, user }) => {
             status: "active",
           }),
         })
-          .then(async (res) => {
-            console.log("res", res);
-            if (res.status !== 201) {
-              const response = await res.json();
+          .then((res) => {
+            if (res.status < 200 || res.status >= 300) {
+              const response = res.json();
               throw new Error(response?.message);
             }
             return res.json();
@@ -155,14 +143,13 @@ const UserForm = ({ type, user }) => {
               firstName: "",
               lastName: "",
             });
-            e.target.reset();
           })
           .catch((err) => {
             setAlert({ alertType: "danger", message: err.message });
           });
       }
       if (type === "edit") {
-        await fetch(
+        fetch(
           `https://assessment-users-backend.herokuapp.com/users/${user.id}`,
           {
             method: "put",
@@ -175,23 +162,20 @@ const UserForm = ({ type, user }) => {
             }),
           }
         )
-          .then(async (res) => {
-            console.log("res", res);
-            if (res.status !== 204) {
-              const response = await res.json();
+          .then((res) => {
+            if (res.status < 200 || res.status >= 300) {
+              const response = res.json();
               throw new Error(response?.message);
             }
             return res.json();
           })
-          .then((res) => {
-            console.log("user details updated", res);
+          .then(() => {
             setAlert({
               alertType: "success",
               message: "User details have been updated",
             });
           })
           .catch((err) => {
-            console.log(err.message);
             setAlert({ alertType: "danger", message: err.message });
           });
       }
